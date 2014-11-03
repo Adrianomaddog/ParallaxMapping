@@ -1,13 +1,4 @@
-/******************************************************************************\
-| OpenGL 4 Example Code.                                                       |
-|******************************************************************************|
-| Commonly-used maths structures and functions                                 |
-| Simple-as-possible. No disgusting templates.                                 |
-| Structs vec3, mat4, versor. just hold arrays of floats called "v","m","q",   |
-| respectively. So, for example, to get values from a mat4 do: my_mat.m        |
-| A versor is the proper name for a unit quaternion.                           |
-| This is C++ because it's sort-of convenient to be able to use maths operators|
-\******************************************************************************/
+/******************************************************************************/
 #ifndef _MATHS_FUNCS_H_
 #define _MATHS_FUNCS_H_
 
