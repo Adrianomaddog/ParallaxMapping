@@ -15,7 +15,7 @@
 #define GL_LOG_FILE "gl.log"
 #define VERTEX_SHADER_FILE "test_vs.glsl"
 #define FRAGMENT_SHADER_FILE "test_fs.glsl"
-#define MESH_FILE "monkey2.obj"
+#define MESH_FILE "IM.obj"
 
 // keep track of window size for things like the viewport and the mouse cursor
 int g_gl_width = 640;
@@ -23,7 +23,7 @@ int g_gl_height = 480;
 GLFWwindow* g_window = NULL;
 
 
-	GLfloat luz_pos[] = {10.0f, 0.0f, 25.0f};
+	GLfloat luz_pos[] = {0.0f, 0.0f, 50.0f};
 	GLfloat LA[] = {1.0f, 1.0f, 1.0f};
 	GLfloat LD[] = {1.0f, 1.0f, 1.0f};
 	
@@ -32,7 +32,7 @@ GLFWwindow* g_window = NULL;
 	
 	GLfloat KS[] = {1.0f, 0.0f, 0.0f};
 	GLfloat LS[] = {1.0f, 0.0f, 0.0f};
-
+	aiColor3D diff;
 
 /* load a mesh using the assimp library */
 
@@ -196,14 +196,19 @@ bool load_mesh (const char* file_name, GLuint* vao, int* point_count) {
 	if (mesh->HasTangentsAndBitangents ()) {
 		// NB: could store/print tangents here
 	}
-	
+	//scene->mMaterials
 	aiReleaseImport (scene);
 	printf ("mesh loaded\n");
+	
+	
 	
 	return true;
 }
 
 int main () {
+	LD[0] = diff.r;
+	LD[1] = diff.g;
+	LD[2] = diff.b;
 	assert (restart_gl_log ());
 	assert (start_gl ());
 	glEnable (GL_DEPTH_TEST); // enable depth-testing
@@ -227,7 +232,7 @@ int main () {
 	#define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444
 	// input variables
 	float near = 0.1f; // clipping plane
-	float far = 100.0f; // clipping plane
+	float far = 1000.0f; // clipping plane
 	float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 degrees to radians
 	float aspect = (float)g_gl_width / (float)g_gl_height; // aspect ratio
 	// matrix components
