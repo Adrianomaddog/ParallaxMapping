@@ -15,24 +15,32 @@
 #define GL_LOG_FILE "gl.log"
 #define VERTEX_SHADER_FILE "test_vs.glsl"
 #define FRAGMENT_SHADER_FILE "test_fs.glsl"
-#define MESH_FILE "IM.obj"
+#define MESH_FILE "m2.obj"
 
 // keep track of window size for things like the viewport and the mouse cursor
 int g_gl_width = 640;
 int g_gl_height = 480;
 GLFWwindow* g_window = NULL;
 
-
+	//LUZ
 	GLfloat luz_pos[] = {0.0f, 0.0f, 50.0f};
 	GLfloat LA[] = {1.0f, 1.0f, 1.0f};
-	GLfloat LD[] = {1.0f, 1.0f, 1.0f};
+	GLfloat LD[] = {0.4f, 0.4f, 0.4f};
+	GLfloat LS[] = {1.0f, 1.0f, 1.0f};
 	
-	GLfloat KA[] = {1.0f, 1.0f, 1.0f};
-	GLfloat KD[] = {0.5f, 0.5f, 0.5f};
 	
-	GLfloat KS[] = {1.0f, 0.0f, 0.0f};
-	GLfloat LS[] = {1.0f, 0.0f, 0.0f};
+	
+	
 	aiColor3D diff;
+	aiColor3D amb;
+	aiColor3D spec;
+	float s;
+
+	//material
+	GLfloat KA[] = {0.2f, 0.2f, 0.2f};
+	GLfloat KD[] = {0.4f, 0.1f, 0.1f};
+	GLfloat KS[] = {0.5f, 0.5f, 0.5f};
+
 
 /* load a mesh using the assimp library */
 
@@ -105,6 +113,10 @@ bool load_mesh (const char* file_name, GLuint* vao, int* point_count) {
 	printf ("  %i textures\n", scene->mNumTextures);
 	
 	/* get first mesh in file only */
+	//const aiMesh* mesh;// = scene->mMeshes[0];
+	//for(int i=0;i < scene->mNumMeshes ; i++){
+		//mesh->mVertices-> += scene->mMeshes[i]->mVertices;
+	//}
 	const aiMesh* mesh = scene->mMeshes[0];
 	printf ("    %i vertices in mesh[0]\n", mesh->mNumVertices);
 	
@@ -196,19 +208,33 @@ bool load_mesh (const char* file_name, GLuint* vao, int* point_count) {
 	if (mesh->HasTangentsAndBitangents ()) {
 		// NB: could store/print tangents here
 	}
-	//scene->mMaterials
+	
+	aiMaterial *mat;
+	mat = scene->mMaterials[mesh->mMaterialIndex];
+	mat->Get(AI_MATKEY_COLOR_DIFFUSE,diff);
+	mat->Get(AI_MATKEY_COLOR_AMBIENT, amb);
+	mat->Get(AI_MATKEY_COLOR_SPECULAR,spec);
+	mat->Get(AI_MATKEY_SHININESS,s);
 	aiReleaseImport (scene);
 	printf ("mesh loaded\n");
 	
+	KD[0] = diff.r;
+	KD[1] = diff.g;
+	KD[2] = diff.b;
 	
-	
+	KA[0] = amb.r;
+	KA[1] = amb.g;
+	KA[2] = amb.b;
+
+	KS[0] = spec.r;
+	KS[1] = spec.g;
+	KS[2] = spec.b;
+
 	return true;
 }
 
 int main () {
-	LD[0] = diff.r;
-	LD[1] = diff.g;
-	LD[2] = diff.b;
+	
 	assert (restart_gl_log ());
 	assert (start_gl ());
 	glEnable (GL_DEPTH_TEST); // enable depth-testing
@@ -247,7 +273,13 @@ int main () {
 		0.0f, 0.0f, Sz, -1.0f,
 		0.0f, 0.0f, Pz, 0.0f
 	};
-	
+	//float eX;
+	//GLfloat model_mat[] = {
+	//	1.0f , 0.0f , 0.0f , 0.0f,
+	//	0.0f , 1.0f , 0.0f , 0.0f,
+	//	0.0f , 0.0f , 1.0f , 0.0f,
+	//	0.0f , 0.0f , 0.0f , 1.0f
+	//};
 		
 	float cam_speed = 1.0f; // 1 unit per second
 	float cam_yaw_speed = 10.0f; // 10 degrees per second
@@ -257,6 +289,9 @@ int main () {
 	mat4 R = rotate_y_deg (identity_mat4 (), -cam_yaw);
 	mat4 view_mat = R * T;
 	
+	//int model_mat_location = glGetUniformLocation (shader_programme, "model");
+	//glUseProgram (shader_programme);
+	//glUniformMatrix4fv (model_mat_location, 1, GL_FALSE, model_mat);
 	int view_mat_location = glGetUniformLocation (shader_programme, "view");
 	glUseProgram (shader_programme);
 	glUniformMatrix4fv (view_mat_location, 1, GL_FALSE, view_mat.m);
@@ -270,6 +305,7 @@ int main () {
 	GLint kd_location = glGetUniformLocation (shader_programme, "KD");
 	GLint ks_location = glGetUniformLocation (shader_programme, "KS");
 	GLint ls_location = glGetUniformLocation (shader_programme, "LS");
+	GLint s_location = glGetUniformLocation (shader_programme, "S");
 
 	int tex_a_location = glGetUniformLocation (shader_programme, "basic_texture");
 	//assert (tex_a_location > -1);
@@ -284,6 +320,7 @@ int main () {
 	glUniform3fv (kd_location,1, KD);
 	glUniform3fv (ks_location,1, KS);
 	glUniform3fv (ls_location,1, LS);
+	glUniform1f (s_location, s);
 
 
 	glUniform1i (tex_a_location, 0);
@@ -323,6 +360,7 @@ int main () {
 			cam_pos[0] -= cam_speed * elapsed_seconds;
 			cam_moved = true;
 		}
+
 		if (glfwGetKey (g_window, GLFW_KEY_D)) {
 			cam_pos[0] += cam_speed * elapsed_seconds;
 			cam_moved = true;
