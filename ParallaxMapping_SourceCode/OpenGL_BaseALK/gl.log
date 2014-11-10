@@ -1,6 +1,7 @@
-GL_LOG_FILE log. local time Sat Nov 08 21:15:31 2014
+GL_LOG_FILE log. local time Mon Nov 10 21:13:26 2014
 
-starting GLFW 3.0.4 Win32 WGL VisualC LoadLibrary(winmm)renderer: AMD Radeon HD 6700 Series
+starting GLFW 3.0.4 Win32 WGL VisualC LoadLibrary(winmm)
+renderer: AMD Radeon HD 6700 Series
 version: 4.4.12874 Compatibility Profile Context 14.100.0.0
 creating shader from test_vs.glsl...
 shader compiled. index 1

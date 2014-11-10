@@ -1,7 +1,9 @@
-/******************************************************************************/
+/******************************************************************************\                           |
+|******************************************************************************|
+| Normal mapping                                                               |
+\******************************************************************************/
 #include "maths_funcs.h"
 #include "gl_utils.h"
-#include "stb_image.h"
 #include "cimport.h" // C importer
 #include "scene.h" // collects data
 #include "postprocess.h" // various extra operations
@@ -9,98 +11,29 @@
 #include "glfw3.h" // GLFW helper library
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <assert.h>
+#include <string.h>
+#include <stdarg.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define GL_LOG_FILE "gl.log"
-#define VERTEX_SHADER_FILE "test_vs.glsl"
-#define FRAGMENT_SHADER_FILE "test_fs.glsl"
-#define MESH_FILE "m2.obj"
+#define NMAP_IMG_FILE "brickwork_normal-map.png"
 
 // keep track of window size for things like the viewport and the mouse cursor
 int g_gl_width = 640;
 int g_gl_height = 480;
 GLFWwindow* g_window = NULL;
 
-	//LUZ
-	GLfloat luz_pos[] = {0.0f, 0.0f, 50.0f};
-	GLfloat LA[] = {1.0f, 1.0f, 1.0f};
-	GLfloat LD[] = {0.4f, 0.4f, 0.4f};
-	GLfloat LS[] = {1.0f, 1.0f, 1.0f};
-	
-	
-	
-	
-	aiColor3D diff;
-	aiColor3D amb;
-	aiColor3D spec;
-	float s;
+GLfloat* g_vp = NULL; // array of vertex points
+GLfloat* g_vn = NULL; // array of vertex normals
+GLfloat* g_vt = NULL; // array of texture coordinates
+GLfloat* g_vtans = NULL;
+int g_point_count = 0;
 
-	//material
-	GLfloat KA[] = {0.2f, 0.2f, 0.2f};
-	GLfloat KD[] = {0.4f, 0.1f, 0.1f};
-	GLfloat KS[] = {0.5f, 0.5f, 0.5f};
-
-
-/* load a mesh using the assimp library */
-
-bool load_texture (const char* file_name, GLuint* tex) {
-	int x, y, n;
-	int force_channels = 4;
-	unsigned char* image_data = stbi_load (file_name, &x, &y, &n, force_channels);
-	if (!image_data) {
-		fprintf (stderr, "ERROR: could not load %s\n", file_name);
-		return false;
-	}
-	// NPOT check
-	if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0) {
-		fprintf (
-			stderr, "WARNING: texture %s is not power-of-2 dimensions\n", file_name
-		);
-	}
-	int width_in_bytes = x * 4;
-	unsigned char *top = NULL;
-	unsigned char *bottom = NULL;
-	unsigned char temp = 0;
-	int half_height = y / 2;
-
-	for (int row = 0; row < half_height; row++) {
-		top = image_data + row * width_in_bytes;
-		bottom = image_data + (y - row - 1) * width_in_bytes;
-		for (int col = 0; col < width_in_bytes; col++) {
-			temp = *top;
-			*top = *bottom;
-			*bottom = temp;
-			top++;
-			bottom++;
-		}
-	}
-	glGenTextures (1, tex);
-	glBindTexture (GL_TEXTURE_2D, *tex);
-	glTexImage2D (
-		GL_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		x,
-		y,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		image_data
-	);
-	glGenerateMipmap (GL_TEXTURE_2D);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	GLfloat max_aniso = 0.0f;
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
-	// set the maximum!
-	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_aniso);
-	return true;
-}
-bool load_mesh (const char* file_name, GLuint* vao, int* point_count) {
-	const aiScene* scene = aiImportFile (file_name, aiProcess_Triangulate);
+bool load_mesh (const char* file_name) {
+	const aiScene* scene = aiImportFile (file_name, aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace);
 	if (!scene) {
 		fprintf (stderr, "ERROR: reading mesh %s\n", file_name);
 		return false;
@@ -112,153 +45,150 @@ bool load_mesh (const char* file_name, GLuint* vao, int* point_count) {
 	printf ("  %i meshes\n", scene->mNumMeshes);
 	printf ("  %i textures\n", scene->mNumTextures);
 	
-	/* get first mesh in file only */
-	//const aiMesh* mesh;// = scene->mMeshes[0];
-	//for(int i=0;i < scene->mNumMeshes ; i++){
-		//mesh->mVertices-> += scene->mMeshes[i]->mVertices;
-	//}
+	// get first mesh only
 	const aiMesh* mesh = scene->mMeshes[0];
 	printf ("    %i vertices in mesh[0]\n", mesh->mNumVertices);
+	g_point_count = mesh->mNumVertices;
 	
-	/* pass back number of vertex points in mesh */
-	*point_count = mesh->mNumVertices;
-	
-	/* generate a VAO, using the pass-by-reference parameter that we give to the
-	function */
-	glGenVertexArrays (1, vao);
-	glBindVertexArray (*vao);
-	
-	/* we really need to copy out all the data from AssImp's funny little data
-	structures into pure contiguous arrays before we copy it into data buffers
-	because assimp's texture coordinates are not really contiguous in memory.
-	i allocate some dynamic memory to do this. */
-	GLfloat* points = NULL; // array of vertex points
-	GLfloat* normals = NULL; // array of vertex normals
-	GLfloat* texcoords = NULL; // array of texture coordinates
+	// allocate memory for vertex points
 	if (mesh->HasPositions ()) {
-		points = (GLfloat*)malloc (*point_count * 3 * sizeof (GLfloat));
-		for (int i = 0; i < *point_count; i++) {
-			const aiVector3D* vp = &(mesh->mVertices[i]);
-			points[i * 3] = (GLfloat)vp->x;
-			points[i * 3 + 1] = (GLfloat)vp->y;
-			points[i * 3 + 2] = (GLfloat)vp->z;
-		}
+		printf ("mesh has positions\n");
+		g_vp = (GLfloat*)malloc (g_point_count * 3 * sizeof (GLfloat));
 	}
 	if (mesh->HasNormals ()) {
-		normals = (GLfloat*)malloc (*point_count * 3 * sizeof (GLfloat));
-		for (int i = 0; i < *point_count; i++) {
-			const aiVector3D* vn = &(mesh->mNormals[i]);
-			normals[i * 3] = (GLfloat)vn->x;
-			normals[i * 3 + 1] = (GLfloat)vn->y;
-			normals[i * 3 + 2] = (GLfloat)vn->z;
-		}
+		printf ("mesh has normals\n");
+		g_vn = (GLfloat*)malloc (g_point_count * 3 * sizeof (GLfloat));
 	}
 	if (mesh->HasTextureCoords (0)) {
-		texcoords = (GLfloat*)malloc (*point_count * 2 * sizeof (GLfloat));
-		for (int i = 0; i < *point_count; i++) {
-			const aiVector3D* vt = &(mesh->mTextureCoords[0][i]);
-			texcoords[i * 2] = (GLfloat)vt->x;
-			texcoords[i * 2 + 1] = (GLfloat)vt->y;
-		}
-	}
-	
-	/* copy mesh data into VBOs */
-	if (mesh->HasPositions ()) {
-		GLuint vbo;
-		glGenBuffers (1, &vbo);
-		glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		glBufferData (
-			GL_ARRAY_BUFFER,
-			3 * *point_count * sizeof (GLfloat),
-			points,
-			GL_STATIC_DRAW
-		);
-		glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (0);
-		free (points);
-	}
-	if (mesh->HasNormals ()) {
-		GLuint vbo;
-		glGenBuffers (1, &vbo);
-		glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		glBufferData (
-			GL_ARRAY_BUFFER,
-			3 * *point_count * sizeof (GLfloat),
-			normals,
-			GL_STATIC_DRAW
-		);
-		glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (1);
-		free (normals);
-	}
-	if (mesh->HasTextureCoords (0)) {
-		GLuint vbo;
-		glGenBuffers (1, &vbo);
-		glBindBuffer (GL_ARRAY_BUFFER, vbo);
-		glBufferData (
-			GL_ARRAY_BUFFER,
-			2 * *point_count * sizeof (GLfloat),
-			texcoords,
-			GL_STATIC_DRAW
-		);
-		glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (2);
-		free (texcoords);
+		printf ("mesh has texture coords\n");
+		g_vt = (GLfloat*)malloc (g_point_count * 2 * sizeof (GLfloat));
 	}
 	if (mesh->HasTangentsAndBitangents ()) {
-		// NB: could store/print tangents here
+		printf ("mesh has tangents\n");
+		g_vtans = (GLfloat*)malloc (g_point_count * 4 * sizeof (GLfloat));
 	}
 	
-	aiMaterial *mat;
-	mat = scene->mMaterials[mesh->mMaterialIndex];
-	mat->Get(AI_MATKEY_COLOR_DIFFUSE,diff);
-	mat->Get(AI_MATKEY_COLOR_AMBIENT, amb);
-	mat->Get(AI_MATKEY_COLOR_SPECULAR,spec);
-	mat->Get(AI_MATKEY_SHININESS,s);
+	for (unsigned int v_i = 0; v_i < mesh->mNumVertices; v_i++) {
+		if (mesh->HasPositions ()) {
+			const aiVector3D* vp = &(mesh->mVertices[v_i]);
+			g_vp[v_i * 3] = (GLfloat)vp->x;
+			g_vp[v_i * 3 + 1] = (GLfloat)vp->y;
+			g_vp[v_i * 3 + 2] = (GLfloat)vp->z;
+		}
+		if (mesh->HasNormals ()) {
+			const aiVector3D* vn = &(mesh->mNormals[v_i]);
+			g_vn[v_i * 3] = (GLfloat)vn->x;
+			g_vn[v_i * 3 + 1] = (GLfloat)vn->y;
+			g_vn[v_i * 3 + 2] = (GLfloat)vn->z;
+		}
+		if (mesh->HasTextureCoords (0)) {
+			const aiVector3D* vt = &(mesh->mTextureCoords[0][v_i]);
+			g_vt[v_i * 2] = (GLfloat)vt->x;
+			g_vt[v_i * 2 + 1] = (GLfloat)vt->y;
+		}
+		if (mesh->HasTangentsAndBitangents ()) {
+			const aiVector3D* tangent = &(mesh->mTangents[v_i]);
+			const aiVector3D* bitangent = &(mesh->mBitangents[v_i]);
+			const aiVector3D* normal = &(mesh->mNormals[v_i]);
+
+			// put the three vectors into my vec3 struct format for doing maths
+			vec3 t (tangent->x, tangent->y, tangent->z);
+			vec3 n (normal->x, normal->y, normal->z);
+			vec3 b (bitangent->x, bitangent->y, bitangent->z);
+			// orthogonalise and normalise the tangent so we can use it in something
+			// approximating a T,N,B inverse matrix
+			vec3 t_i = normalise (t - n * dot (n, t));
+
+			// get determinant of T,B,N 3x3 matrix by dot*cross method
+			float det = (dot (cross (n, t), b));
+			if (det < 0.0f) {
+				det = -1.0f;
+			} else {
+				det = 1.0f;
+			}
+
+			// push back 4d vector for inverse tangent with determinant
+			g_vtans[v_i * 4] = t_i.v[0];
+			g_vtans[v_i * 4 + 1] = t_i.v[1];
+			g_vtans[v_i * 4 + 2] = t_i.v[2];
+			g_vtans[v_i * 4 + 3] = det;
+		}
+	}
+	
 	aiReleaseImport (scene);
+	
 	printf ("mesh loaded\n");
 	
-	KD[0] = diff.r;
-	KD[1] = diff.g;
-	KD[2] = diff.b;
-	
-	KA[0] = amb.r;
-	KA[1] = amb.g;
-	KA[2] = amb.b;
-
-	KS[0] = spec.r;
-	KS[1] = spec.g;
-	KS[2] = spec.b;
-
 	return true;
 }
 
 int main () {
-	
 	assert (restart_gl_log ());
 	assert (start_gl ());
+	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable (GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
-	glEnable (GL_CULL_FACE); // cull face
-	glCullFace (GL_BACK); // cull back face
-	glFrontFace (GL_CCW); // set counter-clock-wise vertex order to mean the front
-	glClearColor (0.2, 0.2, 0.2, 1.0); // grey background to help spot mistakes
-	glViewport (0, 0, g_gl_width, g_gl_height);
 
-	/* load the mesh using assimp */
-	GLuint monkey_vao;
-	int monkey_point_count = 0;
-	assert (load_mesh (MESH_FILE, &monkey_vao, &monkey_point_count));
+	assert (load_mesh ("caixa.obj"));
+
+	GLuint vao;
+	glGenVertexArrays (1, &vao);
+	glBindVertexArray (vao);
+
+	GLuint points_vbo;
+	if (NULL != g_vp) {
+		glGenBuffers (1, &points_vbo);
+		glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
+		glBufferData (
+			GL_ARRAY_BUFFER, 3 * g_point_count * sizeof (GLfloat), g_vp, GL_STATIC_DRAW
+		);
+		glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (0);
+	}
 	
-/*-------------------------------CREATE SHADERS-------------------------------*/
+	GLuint normals_vbo;
+	if (NULL != g_vn) {
+		glGenBuffers (1, &normals_vbo);
+		glBindBuffer (GL_ARRAY_BUFFER, normals_vbo);
+		glBufferData (
+			GL_ARRAY_BUFFER, 3 * g_point_count * sizeof (GLfloat), g_vn, GL_STATIC_DRAW
+		);
+		glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (1);
+	}
+	
+	GLuint texcoords_vbo;
+	if (NULL != g_vt) {
+		glGenBuffers (1, &texcoords_vbo);
+		glBindBuffer (GL_ARRAY_BUFFER, texcoords_vbo);
+		glBufferData (
+			GL_ARRAY_BUFFER, 2 * g_point_count * sizeof (GLfloat), g_vt, GL_STATIC_DRAW
+		);
+		glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (2);
+	}
+	
+	GLuint tangents_vbo;
+	if (NULL != g_vtans) {
+		glGenBuffers (1, &tangents_vbo);
+		glBindBuffer (GL_ARRAY_BUFFER, tangents_vbo);
+		glBufferData (
+			GL_ARRAY_BUFFER,
+			4 * g_point_count * sizeof (GLfloat),
+			g_vtans,
+			GL_STATIC_DRAW
+		);
+		glVertexAttribPointer (3, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (3);
+	}
+	
 	GLuint shader_programme = create_programme_from_files (
-		VERTEX_SHADER_FILE, FRAGMENT_SHADER_FILE
-	);
+		"test_vs.glsl", "test_fs.glsl");
 	
 	#define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444
 	// input variables
 	float near = 0.1f; // clipping plane
-	float far = 1000.0f; // clipping plane
+	float far = 100.0f; // clipping plane
 	float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 degrees to radians
 	float aspect = (float)g_gl_width / (float)g_gl_height; // aspect ratio
 	// matrix components
@@ -273,13 +203,7 @@ int main () {
 		0.0f, 0.0f, Sz, -1.0f,
 		0.0f, 0.0f, Pz, 0.0f
 	};
-	//float eX;
-	//GLfloat model_mat[] = {
-	//	1.0f , 0.0f , 0.0f , 0.0f,
-	//	0.0f , 1.0f , 0.0f , 0.0f,
-	//	0.0f , 0.0f , 1.0f , 0.0f,
-	//	0.0f , 0.0f , 0.0f , 1.0f
-	//};
+	
 		
 	float cam_speed = 1.0f; // 1 unit per second
 	float cam_yaw_speed = 10.0f; // 10 degrees per second
@@ -289,53 +213,51 @@ int main () {
 	mat4 R = rotate_y_deg (identity_mat4 (), -cam_yaw);
 	mat4 view_mat = R * T;
 	
-	//int model_mat_location = glGetUniformLocation (shader_programme, "model");
-	//glUseProgram (shader_programme);
-	//glUniformMatrix4fv (model_mat_location, 1, GL_FALSE, model_mat);
+	int model_mat_location = glGetUniformLocation (shader_programme, "model");
 	int view_mat_location = glGetUniformLocation (shader_programme, "view");
-	glUseProgram (shader_programme);
-	glUniformMatrix4fv (view_mat_location, 1, GL_FALSE, view_mat.m);
 	int proj_mat_location = glGetUniformLocation (shader_programme, "proj");
-	glUseProgram (shader_programme);
-	glUniformMatrix4fv (proj_mat_location, 1, GL_FALSE, proj_mat);
-	GLint luz_pos_location = glGetUniformLocation (shader_programme, "luz_pos");
-	GLint luz_Ia_location = glGetUniformLocation (shader_programme, "LA");
-	GLint luz_Id_location = glGetUniformLocation (shader_programme, "LD");
-	GLint ka_location = glGetUniformLocation (shader_programme, "KA");
-	GLint kd_location = glGetUniformLocation (shader_programme, "KD");
-	GLint ks_location = glGetUniformLocation (shader_programme, "KS");
-	GLint ls_location = glGetUniformLocation (shader_programme, "LS");
-	GLint s_location = glGetUniformLocation (shader_programme, "S");
-
 	int tex_a_location = glGetUniformLocation (shader_programme, "basic_texture");
-	//assert (tex_a_location > -1);
-	int tex_b_location = glGetUniformLocation (shader_programme, "second_texture");
-	//assert (tex_b_location > -1);
-
-
-	glUniform3fv (luz_pos_location,1, luz_pos);
-	glUniform3fv (luz_Ia_location,1, LA);
-	glUniform3fv (luz_Id_location,1, LD);
-	glUniform3fv (ka_location,1, KA);
-	glUniform3fv (kd_location,1, KD);
-	glUniform3fv (ks_location,1, KS);
-	glUniform3fv (ls_location,1, LS);
-	glUniform1f (s_location, s);
+	int tex_b_location = glGetUniformLocation (shader_programme, "normal_texture");
+	int tex_c_location = glGetUniformLocation (shader_programme, "height_texture");
+	glUseProgram (shader_programme);
+	glUniformMatrix4fv (model_mat_location, 1, GL_FALSE, identity_mat4 ().m);
+	glUniformMatrix4fv (view_mat_location, 1, GL_FALSE, view_mat.m);
+	glUniformMatrix4fv (proj_mat_location, 1, GL_FALSE, proj_mat);
+	
+	
 
 
 	glUniform1i (tex_a_location, 0);
 	glUniform1i (tex_b_location, 1);
+	glUniform1i (tex_c_location, 2);
 
 
-	GLuint tex_a, tex_b;
+	GLuint tex_a, tex_b, tex_c;
+
 	glActiveTexture (GL_TEXTURE0);
-	assert (load_texture ("skulluvmap.png", &tex_a));
+	assert (load_texture ("BrickT_512.png", &tex_a));
 	glBindTexture (GL_TEXTURE_2D, tex_a);
-	glActiveTexture (GL_TEXTURE1);
-	assert (load_texture ("ship.png", &tex_b));
-	glBindTexture (GL_TEXTURE_2D, tex_b);
-	
 
+	glActiveTexture (GL_TEXTURE1);
+	assert (load_texture ("BrickN_512.png", &tex_b));
+	glBindTexture (GL_TEXTURE_2D, tex_b);
+
+	glActiveTexture (GL_TEXTURE2);
+	assert (load_texture ("BrickH_512.png", &tex_c));
+	glBindTexture (GL_TEXTURE_2D, tex_c);
+
+
+
+
+
+
+	// load normal map image into texture
+	//GLuint nmap_tex;
+	//assert (load_texture (NMAP_IMG_FILE, &nmap_tex));
+	
+	glEnable (GL_CULL_FACE); // cull face
+	glCullFace (GL_BACK); // cull back face
+	glFrontFace (GL_CCW); // GL_CCW for counter clock-wise
 	
 	while (!glfwWindowShouldClose (g_window)) {
 		static double previous_seconds = glfwGetTime ();
@@ -345,12 +267,14 @@ int main () {
 	
 		_update_fps_counter (g_window);
 		// wipe the drawing surface clear
+		glClearColor(0.0,0.5,0.8,0.0);
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport (0, 0, g_gl_width, g_gl_height);
 		
 		glUseProgram (shader_programme);
-		glBindVertexArray (monkey_vao);
-		glDrawArrays (GL_TRIANGLES, 0, monkey_point_count);
+		glBindVertexArray (vao);
+		// draw points 0-3 from the currently bound VAO with current in-use shader
+		glDrawArrays (GL_TRIANGLES, 0, g_point_count);
 		// update other events like input handling 
 		glfwPollEvents ();
 		
@@ -360,7 +284,6 @@ int main () {
 			cam_pos[0] -= cam_speed * elapsed_seconds;
 			cam_moved = true;
 		}
-
 		if (glfwGetKey (g_window, GLFW_KEY_D)) {
 			cam_pos[0] += cam_speed * elapsed_seconds;
 			cam_moved = true;

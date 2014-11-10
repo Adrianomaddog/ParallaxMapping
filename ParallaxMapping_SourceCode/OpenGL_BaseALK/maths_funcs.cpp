@@ -1,4 +1,4 @@
-/******************************************************************************/
+/***/
 #include "maths_funcs.h"
 #include <stdio.h>
 #define _USE_MATH_DEFINES

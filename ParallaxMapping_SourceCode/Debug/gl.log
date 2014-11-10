@@ -1,5 +1,11 @@
-GL_LOG_FILE log. local time Mon Oct 20 10:29:30 2014
+GL_LOG_FILE log. local time Mon Nov 10 20:39:34 2014
 
-starting GLFW 3.0.4 Win32 WGL VisualC LoadLibrary(winmm)renderer: GeForce GTX 660/PCIe/SSE2
-version: 4.4.0
-ERROR: opening file for reading: test_vs.glsl
+starting GLFW 3.0.4 Win32 WGL VisualC LoadLibrary(winmm)
+renderer: AMD Radeon HD 6700 Series
+version: 4.4.12874 Compatibility Profile Context 14.100.0.0
+creating shader from test_vs.glsl...
+shader compiled. index 1
+creating shader from test_fs.glsl...
+shader compiled. index 2
+created programme 3. attaching shaders 1 and 2...
+program 3 GL_VALIDATE_STATUS = GL_TRUE

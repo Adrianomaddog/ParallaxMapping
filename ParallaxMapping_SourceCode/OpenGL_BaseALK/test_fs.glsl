@@ -1,73 +1,63 @@
 #version 400
 
-uniform mat4 view, proj;
-uniform vec3 luz_pos;
-uniform vec3 LA; 
-uniform vec3 LD;
-uniform vec3 KD;
-uniform vec3 KA;
-uniform vec3 KS;
-uniform vec3 LS;
-uniform float S;
-
-uniform sampler2D basic_texture;
-uniform sampler2D second_texture;
-
-vec3 colour2; 
+// inputs: texture coordinates, and view and light directions in tangent space
 in vec2 st;
-in vec3 V_N;
-in vec3 V_P;
+in vec3 view_dir_tan;
+in vec3 light_dir_tan;
 
-//vec3 LD = vec3(1.0,1.0,1.0);
-//vec3 KD = vec3(1.0, 0.0, 0.0);
-//vec3 KA = vec3(0.0,1.0,0.0);
-//vec3 LA = vec3(1.0,1.0,1.0);
 
-//vec4 luz_pos = vec4(1.0, -1.0, 0.0, 1.0);
-//vec3 luz_dir = vec3(1.0,0.0,1.0);
-//vec3 LS = vec3(1.0,1.0,1.0);
-//vec3 KS = vec3(0.0,0.0,1.0);
-float shinnes = 50.0;
-vec3 r ;//= vec3(0.75,0.0,1.0);
-vec3 luz_dir;// = vec3 (0.0,0.0,1.0);
+// the normal map texture
+uniform sampler2D basic_texture;
+uniform sampler2D normal_texture;
+uniform sampler2D height_texture;
+
+// output colour
 out vec4 frag_colour;
-vec3 view_dir;
+//vec2 parallaxBias = vec2();
+in vec4 test_tan;
 
-
-
-void main() 
- {
-	mat4 inv = inverse(view);
-	//v = vec3(gl_ModelMatrix * gl_Vertex)
-	view_dir = normalize(vec3(inv  * vec4(0.0, 0.0, 0.0, 1.0) - vec4(V_P,1.0)));
-	luz_dir = normalize(vec3(luz_pos));
-	//vec4 texel_a = texture (basic_texture, st);
-	vec4 texel_b = texture (second_texture, st);
+void main() {
+	vec3 Ia = vec3 (0.5, 0.5, 0.5);
+	float height = texture(height_texture, st).r;  /*texture(height_texture, st).g ;*/
+	//float b = 0.01* -0.5;
+	//float hsb = height * s + b;
 	
-	//r = 2 * dot(V_N,luz_pos)*V_N -1;
-	//vec3 V_N = normalize(V_N);
-	//vec3 luz_pos2 = normalize(luz_pos);
-	//vec3 V_N2 = normalize(V_N);
-		r = normalize(reflect(luz_dir, V_N));
-
-	//vec3 colourf =  KD * LD *  dot( luz_pos, V_N) + KS * LS * pow(dot(r,luz_pos),shinnes) +  KA * LA;
+	//height = normalize(height);
+	float h = -height * 0.04 + 0.02;
+	//v = normalize(v);
 	
-	vec3 ambiente = KA * LA;
-	vec3 difusa = KD * LD * dot( luz_dir, V_N);
-	//vec3 diff = clamp(difusa, 0.0,1.0);
-	//vec3 V = luz_pos * V_N;
-	//vec3 L = normalize(luz_pos - V);
-	vec3 specular =  KS * LS * pow(max(0.0,dot(reflect(-luz_dir,V_N),view_dir)),S);
-	//vec3 spec = clamp(specular, 0.0, 1.0);
-	vec3 colour2 = vec3(texel_b);
-	vec3 colourf =  ambiente + difusa + specular; 
-
-	frag_colour = vec4 (colourf, 1.0);
 
 
-/*
-	vec4 texel_a = texture (basic_texture, texture_coordinates);
-	vec4 texel_b = texture (second_texture, texture_coordinates);
-	frag_colour = mix (texel_a, texel_b, texture_coordinates.s);
-*/
- }
+	//float height = texture(height_texture, st).r;
+	vec3 eye = normalize(view_dir_tan);
+	vec2 newCoords = st + (eye.xy * h);  
+
+	// sample the normal map and covert from 0:1 range to -1:1 range
+	vec3 normal_tan = texture (normal_texture, newCoords).rgb;
+	normal_tan = normalize ((normal_tan) * 2.0 - 1.0);
+
+	
+
+	// diffuse light equation done in tangent space
+	vec3 direction_to_light_tan = normalize (-light_dir_tan);
+	float dot_prod = dot (direction_to_light_tan, normal_tan);
+	dot_prod = max (dot_prod, 0.0);
+	vec3 Id = vec3 (0.7, 0.7, 0.7) * vec3 (0.5, 0.5, 0.5) * dot_prod;
+
+	// specular light equation done in tangent space
+	vec3 reflection_tan = reflect (normalize (light_dir_tan), normal_tan);
+	float dot_prod_specular = dot (reflection_tan, normalize (view_dir_tan));
+	dot_prod_specular = max (dot_prod_specular, 0.0);
+	float specular_factor = pow (dot_prod_specular, 500.0);
+	vec3 Is = vec3 (1.0, 1.0, 1.0) * vec3 (0.5, 0.5, 0.5) * specular_factor;
+
+
+	vec4 colortex = texture(basic_texture,newCoords);
+	//vec4 color2 = texture(colortex,newCoords);
+
+	// phong light output
+	vec3 luz = Is + Id + Ia;
+	vec4 c =vec4(luz,1.0) * colortex;
+	frag_colour.rgba = c;
+	//frag_colour.a = 1.0;
+}
