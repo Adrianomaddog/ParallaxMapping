@@ -1,32 +1,67 @@
-﻿Build started 10/11/2014 21:13:19.
-     1>Project "I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\OpenGL_BaseALK\OpenGL_BaseALK.vcxproj" on node 2 (Build target(s)).
-     1>InitializeBuildStatus:
-         Creating "Debug\OpenGL_BaseALK.unsuccessfulbuild" because "AlwaysCreate" was specified.
-       ClCompile:
-         C:\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\common\include\GL /I..\common\include\GLFW /I..\common\include\assimp /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+﻿Build started 17/11/2014 10:44:03.
+     1>Project "I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\OpenGL_BaseALK\OpenGL_BaseALK.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\common\include\GL /I..\common\include\GLFW /I..\common\include\assimp /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt gl_utils.cpp main.cpp maths_funcs.cpp
+         maths_funcs.cpp
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(249): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(253): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(496): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(508): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(520): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(568): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(634): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(635): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(636): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(637): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\maths_funcs.cpp(642): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
          main.cpp
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(192): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(270): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(284): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(288): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(292): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(296): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(300): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(304): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(308): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>i:\aula\pm grau b\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(312): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-         All outputs are up-to-date.
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(192): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(270): warning C4305: 'argument' : truncation from 'double' to 'GLclampf'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(284): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(288): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(292): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(296): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(300): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(304): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(308): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\main.cpp(312): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
+         gl_utils.cpp
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(13): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(23): warning C4996: 'ctime': This function or variable may be unsafe. Consider using ctime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\time.inl(86) : see declaration of 'ctime'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(31): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(50): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(139): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(357) : see declaration of 'sprintf'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(151): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(158): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(110) : see declaration of 'strcpy'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\gl_utils.cpp(168): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(115) : see declaration of 'strcat'
+         Generating Code...
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\common\include\GL /I..\common\include\GLFW /I..\common\include\assimp /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt stb_image.c
+         stb_image.c
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\stb_image.c(228): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\stb_image.c(290): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\stb_image.c(328): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
+     1>i:\aula\novo\parallaxmapping\parallaxmapping_sourcecode\opengl_basealk\stb_image.c(4221): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(218) : see declaration of 'fopen'
        Link:
-         C:\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.exe" /INCREMENTAL /NOLOGO /LIBPATH:..\common\msvc110 glew32.lib glfw3.lib OpenGL32.lib assimp.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.lib" /MACHINE:X86 Debug\gl_utils.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.exe" /INCREMENTAL /NOLOGO /LIBPATH:..\common\msvc110 glew32.lib glfw3.lib OpenGL32.lib assimp.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.lib" /MACHINE:X86 Debug\gl_utils.obj
          Debug\main.obj
          Debug\maths_funcs.obj
          Debug\stb_image.obj
-         OpenGL_BaseALK.vcxproj -> I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.exe
-       FinalizeBuildStatus:
-         Deleting file "Debug\OpenGL_BaseALK.unsuccessfulbuild".
-         Touching "Debug\OpenGL_BaseALK.lastbuildstate".
-     1>Done Building Project "I:\AULA\PM grau B\ParallaxMapping\ParallaxMapping_SourceCode\OpenGL_BaseALK\OpenGL_BaseALK.vcxproj" (Build target(s)).
+     1>LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+         OpenGL_BaseALK.vcxproj -> I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\Debug\OpenGL_BaseALK.exe
+     1>Done Building Project "I:\AULA\NOVO\ParallaxMapping\ParallaxMapping_SourceCode\OpenGL_BaseALK\OpenGL_BaseALK.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:06.23
+Time Elapsed 00:00:14.07

@@ -2,4 +2,19 @@ Trabalho sobre Parallax Mapping
 
 Desenvolvido por:
 Adriano L. Kerber | alk.gordo@gmail.com
-Henrique Corrêa |
+Henrique Corrêa | henrique.fcorrea@gmail.com
+
+
+INSTRUÇÕES
+
+para visualizar o cubo, prescione PAGE_UP até ele aparecer na tela
+
+PAGE_UP - move a camera para cima
+PAGE_DOWN - move a camera para baixo
+W - aproxima a camera
+S - afasta a camera
+D - move a camera para a direita
+A - move a camera para a esquerda
+
+->(DIRECIONAL_DIREITO) - gira a camera para a direita 
+<-(DIRECIONAL_ESQUERDO) - gira a camera para a esquerda
